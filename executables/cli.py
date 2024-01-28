@@ -1,12 +1,15 @@
 import random
 import pathlib
+import signal
+import sys
+import time
 
 from typing import Optional
 
 import click
 from schnapsen.alternative_engines.ace_one_engine import AceOneGamePlayEngine
 
-from schnapsen.bots import MLDataBot, train_ML_model, MLPlayingBot, RandBot
+from schnapsen.bots import MLDataBot, train_ML_model, MLPlayingBot, RandBot, MiniMaxBot, SchnapsenServer
 
 from schnapsen.bots.example_bot import ExampleBot
 
@@ -146,6 +149,71 @@ def create_replay_memory_dataset() -> None:
         engine.play_game(replay_memory_recording_bot_1, replay_memory_recording_bot_2, random.Random(i))
     print(f"Replay memory dataset recorder for {num_of_games} games.\nDataset is stored at: {replay_memory_location}")
 
+@ml.command()
+def create_random_dataset() -> None:
+    # define replay memory database creation parameters
+    num_of_games: int = 20
+    replay_memory_dir: str = 'ML_replay_memories'
+    replay_memory_filename: str = 'random_random_20_games.txt'
+    replay_memory_location = pathlib.Path(replay_memory_dir) / replay_memory_filename
+
+    bot_1_behaviour: Bot = RandBot(random.Random(5234243))
+    # bot_1_behaviour: Bot = RdeepBot(num_samples=4, depth=4, rand=random.Random(4564654644))
+    bot_2_behaviour: Bot = RandBot(random.Random(54354))
+    # bot_2_behaviour: Bot = RdeepBot(num_samples=4, depth=4, rand=random.Random(68438))
+    delete_existing_older_dataset = False
+
+    # check if needed to delete any older versions of the dataset
+    if delete_existing_older_dataset and replay_memory_location.exists():
+        print(f"An existing dataset was found at location '{replay_memory_location}', which will be deleted as selected.")
+        replay_memory_location.unlink()
+
+    # in any case make sure the directory exists
+    replay_memory_location.parent.mkdir(parents=True, exist_ok=True)
+
+    # create new replay memory dataset, according to the behaviour of the provided bots and the provided random seed
+    engine = SchnapsenGamePlayEngine()
+    replay_memory_recording_bot_1 = MLDataBot(bot_1_behaviour, replay_memory_location=replay_memory_location)
+    replay_memory_recording_bot_2 = MLDataBot(bot_2_behaviour, replay_memory_location=replay_memory_location)
+    for i in range(1, num_of_games + 1):
+        if i % 500 == 0:
+            print(f"Progress: {i}/{num_of_games}")
+        engine.play_game(replay_memory_recording_bot_1, replay_memory_recording_bot_2, random.Random(i))
+    print(f"Replay memory dataset recorder for {num_of_games} games.\nDataset is stored at: {replay_memory_location}")
+
+@ml.command()
+def create_player_dataset() -> None:
+    # define replay memory database creation parameters
+    num_of_games: int = 5
+    replay_memory_dir: str = 'ML_replay_memories'
+    replay_memory_filename: str = 'random_player_5_games_' + time.time().__round__().__str__() + '.txt'
+    replay_memory_location = pathlib.Path(replay_memory_dir) / replay_memory_filename
+
+
+    with SchnapsenServer() as s:
+        bot_1_behaviour: Bot = RandBot(random.Random(5234243))
+        # bot_1_behaviour: Bot = RdeepBot(num_samples=4, depth=4, rand=random.Random(4564654644))
+        bot_2_behaviour: Bot = s.make_gui_bot(name="randbot for training")
+        # bot_2_behaviour: Bot = RdeepBot(num_samples=4, depth=4, rand=random.Random(68438))
+        delete_existing_older_dataset = False
+
+    # check if needed to delete any older versions of the dataset
+        if delete_existing_older_dataset and replay_memory_location.exists():
+            print(f"An existing dataset was found at location '{replay_memory_location}', which will be deleted as selected.")
+            replay_memory_location.unlink()
+
+        # in any case make sure the directory exists
+        replay_memory_location.parent.mkdir(parents=True, exist_ok=True)
+
+        # create new replay memory dataset, according to the behaviour of the provided bots and the provided random seed
+        engine = SchnapsenGamePlayEngine()
+        replay_memory_recording_bot_1 = MLDataBot(bot_1_behaviour, replay_memory_location=replay_memory_location)
+        replay_memory_recording_bot_2 = MLDataBot(bot_2_behaviour, replay_memory_location=replay_memory_location)
+        for i in range(1, num_of_games + 1):
+            if i % 500 == 0:
+                print(f"Progress: {i}/{num_of_games}")
+            engine.play_game(replay_memory_recording_bot_1, replay_memory_recording_bot_2, random.Random(i))
+        print(f"Replay memory dataset recorder for {num_of_games} games.\nDataset is stored at: {replay_memory_location}")
 
 @ml.command()
 def train_model() -> None:
@@ -178,7 +246,7 @@ def try_bot_game() -> None:
     model_name: str = 'simple_model'
     model_location = pathlib.Path(model_dir) / model_name
     bot1: Bot = MLPlayingBot(model_location=model_location)
-    bot2: Bot = RandBot(random.Random(464566))
+    bot2: Bot = MiniMaxBot()
     number_of_games: int = 10000
 
     # play games with altering leader position on first rounds
