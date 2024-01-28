@@ -2,10 +2,7 @@ import os
 import random
 import pathlib
 import shutil
-import signal
-import sys
 import time
-from multiprocessing.pool import ThreadPool
 
 from typing import Optional
 
@@ -154,7 +151,7 @@ def create_replay_memory_dataset() -> None:
 
 
 # @ml.command()
-def create_random_dataset(nope: int) -> None:
+def create_random_dataset() -> None:
     # define replay memory database creation parameters
     num_of_games: int = 20
     replay_memory_dir: str = 'ML_generated_random_memories'
@@ -221,7 +218,7 @@ def create_player_dataset() -> None:
         print(f"Replay memory dataset recorder for {num_of_games} games.\nDataset is stored at: {replay_memory_location}")
 
 @ml.command()
-def run_random_experiment():
+def prep_random_experiment():
     try:
         shutil.rmtree(pathlib.Path("ML_generated_random_memories"))
     except FileNotFoundError:
@@ -234,20 +231,20 @@ def run_random_experiment():
         shutil.rmtree(pathlib.Path("ML_random_models"))
     except FileNotFoundError:
         pass
-    sets: int = 20
+    sets: int = 15
     print("creating datasets")
-    with ThreadPool() as pool:
-        pool.map(create_random_dataset, range(sets))
+    for x in range(sets):
+        create_random_dataset()
     shutil.copytree(pathlib.Path("ML_generated_random_memories"), pathlib.Path("ML_replay_random_memories"))
     print("combining datasets")
     combine_random_training_data()
     print("training models")
     train_random_models()
-    print("trying games")
-    try_random_games()
+    # print("trying games")
+    # try_random_games()
 
 @ml.command()
-def run_player_experiment():
+def prep_player_experiment():
     try:
         shutil.rmtree(pathlib.Path("ML_replay_player_memories"))
     except FileNotFoundError:
@@ -259,7 +256,7 @@ def run_player_experiment():
     shutil.copytree(pathlib.Path("ML_generated_player_memories"), pathlib.Path("ML_replay_player_memories"))
     combine_player_training_data()
     train_player_models()
-    try_player_games()
+    # try_player_games()
 
 
 
@@ -319,8 +316,8 @@ def train_random_models() -> None:
     replay_memories_directory: str = 'ML_replay_random_memories'
     rand_or_player: str = "random"
     # directory where the replay memory is saved
-    with ThreadPool() as pool:
-        pool.map(train_random_experiment_model, range(len(os.listdir(pathlib.Path(replay_memories_directory)))))
+    for n in range(len(os.listdir(pathlib.Path(replay_memories_directory)))):
+        train_random_experiment_model(n)
 
 
 def train_random_experiment_model(n):
@@ -374,8 +371,9 @@ def train_player_models() -> None:
     replay_memories_directory: str = 'ML_replay_player_memories'
 
     rand_or_player: str = "player"
-    with ThreadPool() as pool:
-        pool.map(train_random_experiment_model, range(len(os.listdir(pathlib.Path(replay_memories_directory)))))
+
+    for x in range(len(os.listdir(pathlib.Path(replay_memories_directory)))):
+        train_player_experiment_model(x)
 
 @ml.command()
 def try_bot_game() -> None:
@@ -393,11 +391,161 @@ def try_bot_game() -> None:
 
 def try_random_games() -> None:
     model_dir: str = 'ML_random_models'
-    with ThreadPool() as pool:
-        pool.map(play_random_game, range(len(os.listdir(pathlib.Path(model_dir)))))
+    for n in range(len(os.listdir(pathlib.Path(model_dir)))):
+        play_random_game(n)
+
+
+@ml.command()
+def try_player_game_1() -> None:
+    play_player_game(1)
+
+
+@ml.command()
+def try_player_game_2() -> None:
+    play_player_game(2)
+
+
+@ml.command()
+def try_player_game_3() -> None:
+    play_player_game(3)
+
+
+@ml.command()
+def try_player_game_4() -> None:
+    play_player_game(4)
+
+
+@ml.command()
+def try_player_game_5() -> None:
+    play_player_game(5)
+
+
+@ml.command()
+def try_player_game_6() -> None:
+    play_player_game(6)
+
+
+@ml.command()
+def try_player_game_7() -> None:
+    play_player_game(7)
+
+
+@ml.command()
+def try_player_game_8() -> None:
+    play_player_game(8)
+
+
+@ml.command()
+def try_player_game_9() -> None:
+    play_player_game(9)
+
+
+@ml.command()
+def try_player_game_10() -> None:
+    play_player_game(10)
+
+
+@ml.command()
+def try_player_game_11() -> None:
+    play_player_game(11)
+
+
+@ml.command()
+def try_player_game_12() -> None:
+    play_player_game(12)
+
+
+@ml.command()
+def try_player_game_13() -> None:
+    play_player_game(13)
+
+
+@ml.command()
+def try_player_game_14() -> None:
+    play_player_game(14)
+
+
+@ml.command()
+def try_player_game_0() -> None:
+    play_player_game(0)
+
+@ml.command()
+def try_random_game_1() -> None:
+    play_random_game(1)
+
+
+@ml.command()
+def try_random_game_2() -> None:
+    play_random_game(2)
+
+
+@ml.command()
+def try_random_game_3() -> None:
+    play_random_game(3)
+
+
+@ml.command()
+def try_random_game_4() -> None:
+    play_random_game(4)
+
+
+@ml.command()
+def try_random_game_5() -> None:
+    play_random_game(5)
+
+
+@ml.command()
+def try_random_game_6() -> None:
+    play_random_game(6)
+
+
+@ml.command()
+def try_random_game_7() -> None:
+    play_random_game(7)
+
+
+@ml.command()
+def try_random_game_8() -> None:
+    play_random_game(8)
+
+
+@ml.command()
+def try_random_game_9() -> None:
+    play_random_game(9)
+
+
+@ml.command()
+def try_random_game_10() -> None:
+    play_random_game(10)
+
+
+@ml.command()
+def try_random_game_11() -> None:
+    play_random_game(11)
+
+
+@ml.command()
+def try_random_game_12() -> None:
+    play_random_game(12)
+
+
+@ml.command()
+def try_random_game_13() -> None:
+    play_random_game(13)
+
+
+@ml.command()
+def try_random_game_14() -> None:
+    play_random_game(14)
+
+
+@ml.command()
+def try_random_game_0() -> None:
+    play_random_game(0)
 
 
 def play_random_game(n):
+    print("playing game: " + (n+1).__str__())
     engine = SchnapsenGamePlayEngine()
     model_dir: str = 'ML_random_models'
     rand_or_player: str = "random"
@@ -436,8 +584,9 @@ def play_player_game(n):
 
 def try_player_games() -> None:
     model_dir: str = 'ML_player_models'
-    with ThreadPool() as pool:
-        pool.map(play_player_game, range(len(os.listdir(pathlib.Path(model_dir)))))
+
+    for x in range(len(os.listdir(pathlib.Path(model_dir)))):
+        play_player_game(x)
 
 @main.command()
 def game_24() -> None:
