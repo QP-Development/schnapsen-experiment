@@ -135,13 +135,13 @@ def train_ML_model(replay_memory_location: Optional[pathlib.Path],
     This implementation has the option to train a neural network model or a model based on linear regression.
     The model classes used in this implemntation are not necesarily optimal.
 
-    :param replay_memory_location: Location of the games stored by MLDataBot, default pathlib.Path('ML_replay_memories') / 'test_replay_memory'
+    :param replay_memory_location: Location of the games stored by MLDataBot, default pathlib.Path('ML_replay_player_memories') / 'test_replay_memory'
     :param model_location: Location where the model will be stored, default pathlib.Path("ML_models") / 'test_model'
     :param model_class: The machine learning model class to be used, either 'NN' for a neural network, or 'LR' for a linear regression.
     :param overwrite: Whether to overwrite a possibly existing model.
     """
     if replay_memory_location is None:
-        replay_memory_location = pathlib.Path('ML_replay_memories') / 'test_replay_memory'
+        replay_memory_location = pathlib.Path('ML_replay_player_memories') / 'test_replay_memory'
     if model_location is None:
         model_location = pathlib.Path("ML_models") / 'test_model'
     assert model_class == 'NN' or model_class == 'LR', "Unknown model class"

@@ -137,4 +137,10 @@ dmypy.json
 
 # ML models
 ML_models/
-ML_replay_memories/
+ML_random_models/
+ML_player_models/
+ML_replay_player_memories/
+ML_replay_random_memories/
+ML_generated_player_memories/
+ML_generated_random_memories/
+output.txt
