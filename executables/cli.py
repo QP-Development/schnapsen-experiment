@@ -159,6 +159,7 @@ def create_random_dataset(nope: int) -> None:
     num_of_games: int = 20
     replay_memory_dir: str = 'ML_generated_random_memories'
     replay_memory_filename: str = 'random_random_20_games' + time.time().__str__() + '.txt'
+    print("creating dataset " + replay_memory_filename)
     replay_memory_location = pathlib.Path(replay_memory_dir) / replay_memory_filename
 
     bot_1_behaviour: Bot = RandBot(random.Random(5234243))
@@ -229,17 +230,32 @@ def run_random_experiment():
         shutil.rmtree(pathlib.Path("ML_replay_random_memories"))
     except FileNotFoundError:
         pass
+    try:
+        shutil.rmtree(pathlib.Path("ML_random_models"))
+    except FileNotFoundError:
+        pass
     sets: int = 20
+    print("creating datasets")
     with ThreadPool() as pool:
         pool.map(create_random_dataset, range(sets))
     shutil.copytree(pathlib.Path("ML_generated_random_memories"), pathlib.Path("ML_replay_random_memories"))
+    print("combining datasets")
     combine_random_training_data()
+    print("training models")
     train_random_models()
+    print("trying games")
     try_random_games()
 
 @ml.command()
 def run_player_experiment():
-    shutil.rmtree(pathlib.Path("ML_replay_player_memories"))
+    try:
+        shutil.rmtree(pathlib.Path("ML_replay_player_memories"))
+    except FileNotFoundError:
+        pass
+    try:
+        shutil.rmtree(pathlib.Path("ML_player_models"))
+    except FileNotFoundError:
+        pass
     shutil.copytree(pathlib.Path("ML_generated_player_memories"), pathlib.Path("ML_replay_player_memories"))
     combine_player_training_data()
     train_player_models()
@@ -252,9 +268,10 @@ def combine_random_training_data() -> None:
     memoryloc = pathlib.Path("ML_replay_random_memories")
     files = os.listdir(memoryloc)
     for n in range(len(files) - 1):
+        print("combining sets " + (n+1).__str__() +" and " + (n+2).__str__())
         combine(files, memoryloc, n) #DONT multithread this, it needs to be sequential to combine correctly
     for n in range(len(files)):
-        os.rename(memoryloc / files[n], memoryloc / (n+1).__str__())
+        os.rename(memoryloc / files[n], memoryloc / ((n+1).__str__() + '.txt'))
 
 
 def combine(files, memoryloc, n):
@@ -272,7 +289,7 @@ def combine_player_training_data() -> None:
     for n in range(len(files) - 1):
         combine(files, memoryloc, n)
     for n in range(len(files)):
-        os.rename(memoryloc / files[n], memoryloc / (n+1).__str__())
+        os.rename(memoryloc / files[n], memoryloc / ((n+1).__str__() + '.txt'))
 
 @ml.command()
 def train_model() -> None:
@@ -312,6 +329,7 @@ def train_random_experiment_model(n):
     rand_or_player: str = "random"
     # filename of replay memory within that directory
     replay_memory_filename: str = (n + 1).__str__() + '.txt'
+    print("training model from " + replay_memory_filename)
     # Whether to train a complicated Neural Network model or a simple one.
     # Tips: a neural network usually requires bigger datasets to be trained on, and to play with the parameters of the model.
     # Feel free to play with the hyperparameters of the model in file 'ml_bot.py', function 'train_ML_model',
