@@ -231,7 +231,7 @@ def prep_random_experiment():
         shutil.rmtree(pathlib.Path("ML_random_models"))
     except FileNotFoundError:
         pass
-    sets: int = 15
+    sets: int = 20
     print("creating datasets")
     for x in range(sets):
         create_random_dataset()
@@ -309,7 +309,7 @@ def train_model() -> None:
         model_location.unlink()
 
     train_ML_model(replay_memory_location=replay_memory_location, model_location=model_location,
-                   model_class='LR')
+                   model_class='NN')
 
 # @ml.command()
 def train_random_models() -> None:
@@ -340,7 +340,7 @@ def train_random_experiment_model(n):
         print(f"Model at {model_location} exists already and will be overwritten as selected.")
         model_location.unlink()
     train_ML_model(replay_memory_location=replay_memory_location, model_location=model_location,
-                   model_class='LR')
+                   model_class='NN')
 
 def train_player_experiment_model(n):
 
@@ -362,7 +362,7 @@ def train_player_experiment_model(n):
         print(f"Model at {model_location} exists already and will be overwritten as selected.")
         model_location.unlink()
     train_ML_model(replay_memory_location=replay_memory_location, model_location=model_location,
-                   model_class='LR')
+                   model_class='NN')
 
 
 # @ml.command()
@@ -554,9 +554,9 @@ def play_random_game(n):
     model_name: str = rand_or_player + '_model_' + (n + 1).__str__()
     model_location = pathlib.Path(model_dir) / model_name
     bot1: Bot = MLPlayingBot(model_location=model_location)
-    # bot2: Bot = RandBot(random.Random(78465))
-    bot2: Bot = RdeepBot(rand=random.Random(78465), depth=4, num_samples=20)
-    number_of_games: int = 10000
+    bot2: Bot = RandBot(random.Random(78465))
+    # bot2: Bot = RdeepBot(rand=random.Random(78465), depth=4, num_samples=20)
+    number_of_games: int = 100000
     # play games with altering leader position on first rounds
     ml_bot_wins_against_random = play_games_and_return_stats(engine=engine, bot1=bot1, bot2=bot2,
                                                              number_of_games=number_of_games)
@@ -572,9 +572,8 @@ def play_player_game(n):
     model_name: str = rand_or_player + '_model_' + (n + 1).__str__()
     model_location = pathlib.Path(model_dir) / model_name
     bot1: Bot = MLPlayingBot(model_location=model_location)
-    # bot2: Bot = RandBot(random.Random(78465))
-    bot2: Bot = RdeepBot(rand=random.Random(78465), depth=4, num_samples=20)
-    number_of_games: int = 10000
+    bot2: Bot = RandBot(random.Random(78465))
+    number_of_games: int = 100000
     # play games with altering leader position on first rounds
     ml_bot_wins_against_random = play_games_and_return_stats(engine=engine, bot1=bot1, bot2=bot2,
                                                              number_of_games=number_of_games)
